@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Thunk! — Osman Taha Güneş</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0E1013;--ink:#ECEDEF;--muted:#98A0AA;--line:#252930;--accent:#FF6A3D}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--bg);color:var(--ink);overflow:hidden;font-family:'JetBrains Mono',monospace}
+  body{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:12px;
+       background:radial-gradient(circle at 50% 40%,rgba(255,106,61,.12),transparent 60%),var(--bg)}
+  .bar{width:var(--w);display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted)}
+  .bar a{color:var(--muted);text-decoration:none}.bar a:hover{color:var(--accent)}
+  .bar b{font-family:'Space Grotesk',sans-serif;color:var(--ink);font-size:15px}
+  .frame{position:relative;width:var(--w);height:var(--h);border-radius:22px;overflow:hidden;border:1px solid var(--line);box-shadow:0 20px 60px rgba(0,0,0,.5);background:#000}
+  canvas{width:100%;height:100%;display:block;touch-action:none}
+  .loader{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:#12151C}
+  .loader h1{font-family:'Space Grotesk',sans-serif;font-size:34px;letter-spacing:-.02em}
+  .track{width:60%;height:4px;border-radius:4px;background:var(--line);overflow:hidden}
+  .fill{height:100%;width:0;background:var(--accent);transition:width .2s}
+  .pct{font-size:12px;color:var(--muted)}
+  .err{position:absolute;inset:auto 12px 12px;padding:10px;border-radius:10px;background:#3a1610;color:#ffb4a0;font-size:12px;display:none}
+  .hint{font-size:11px;color:var(--muted)}
+  @media (max-width:600px){body{padding:0;gap:0}.bar,.hint{display:none}.frame{border-radius:0;border:0}}
+</style>
+</head>
+<body>
+  <div class="bar"><a href="../#projects">← Portföy</a><b>Thunk!</b><a href="https://github.com/tahagunes/KnifeHit" target="_blank" rel="noopener">GitHub ↗</a></div>
+  <div class="frame">
+    <canvas id="unity-canvas" tabindex="-1"></canvas>
+    <div class="loader" id="loader"><h1>Thunk!</h1><div class="track"><div class="fill" id="fill"></div></div><div class="pct" id="pct">0%</div></div>
+    <div class="err" id="err"></div>
+  </div>
+  <p class="hint">Tıkla / dokun → bıçak fırlat · Click / tap to throw</p>
+<script>
+  function fit(){
+    const mobile = innerWidth <= 600;
+    let h = mobile ? innerHeight : innerHeight - 90, w = h * 9 / 16;
+    if (mobile) w = innerWidth; else if (w > innerWidth - 24) { w = innerWidth - 24; h = w * 16 / 9; }
+    document.documentElement.style.setProperty('--w', w + 'px');
+    document.documentElement.style.setProperty('--h', h + 'px');
+  }
+  fit(); addEventListener('resize', fit);
+  const s = document.createElement('script');
+  s.src = 'Build/play.loader.js';
+  s.onload = () => createUnityInstance(document.getElementById('unity-canvas'), {
+      arguments: [],
+      dataUrl: 'Build/play.data.unityweb',
+      frameworkUrl: 'Build/play.framework.js.unityweb',
+      codeUrl: 'Build/play.wasm.unityweb',
+      streamingAssetsUrl: 'StreamingAssets',
+      companyName: 'tahagunes', productName: 'Thunk!', productVersion: '1.0.0',
+      matchWebGLToCanvasSize: true,
+      showBanner: (msg, type) => { if (type === 'error') { const e = document.getElementById('err'); e.textContent = msg; e.style.display = 'block'; } }
+    }, p => {
+      document.getElementById('fill').style.width = (p * 100) + '%';
+      document.getElementById('pct').textContent = Math.round(p * 100) + '%';
+    }).then(() => document.getElementById('loader').remove())
+      .catch(m => { const e = document.getElementById('err'); e.textContent = m; e.style.display = 'block'; });
+  document.body.appendChild(s);
+</script>
+</body>
+</html>
